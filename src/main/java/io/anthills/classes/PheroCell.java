@@ -4,12 +4,11 @@ import org.bukkit.Location;
 
 public class PheroCell extends Cell {
     private Colony colony;
-    private int tier;
+    private int tier = 1;
 
-    public PheroCell(Location location, Colony colony, int tier) {
+    public PheroCell(Location location, Colony colony) {
         super(location);
         this.colony = colony;
-        setTier(tier);
     }
 
     public Colony getColony() {
@@ -24,10 +23,19 @@ public class PheroCell extends Cell {
         return tier;
     }
 
-    public void setTier(int tier) {
-        if (tier < 1 || tier > 3) {
-            throw new IllegalArgumentException("Tier must be between 1 and 3 inclusive.");
+    public boolean promoteTier() {
+        if (tier < 3) {
+            tier++;
+            return true;
         }
-        this.tier = tier;
+        return false;
+    }
+
+    public boolean demoteTier() {
+        if (tier > 1) {
+            tier--;
+            return true;
+        }
+        return false;
     }
 }

@@ -1,20 +1,16 @@
 package io.anthills;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.bukkit.plugin.java.JavaPlugin;
 
-import io.anthills.classes.Colony;
-import io.anthills.classes.PheroCell;
 import io.anthills.commands.CommandRegistry;
-import io.anthills.events.CellListener;
+import io.anthills.listeners.CellChangeListener;
+import io.anthills.listeners.ColonyClaimListener;
+import io.anthills.listeners.PheroCellTierChangeListener;
+import io.anthills.listeners.PlayerJoinListener;
+import io.anthills.listeners.PlayerMoveListener;
 
 public class Plugin extends JavaPlugin {
   private static Plugin instance;
-
-  public static final Set<PheroCell> pheroCells = new HashSet<>();
-  public static final Set<Colony> colonies = new HashSet<>();
 
   @Override
   public void onEnable() {
@@ -22,7 +18,11 @@ public class Plugin extends JavaPlugin {
 
     CommandRegistry.registerCommands();
 
-    getServer().getPluginManager().registerEvents(new CellListener(), this);
+    getServer().getPluginManager().registerEvents(new PlayerMoveListener(), this);
+    getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+    getServer().getPluginManager().registerEvents(new CellChangeListener(), this);
+    getServer().getPluginManager().registerEvents(new ColonyClaimListener(), this);
+    getServer().getPluginManager().registerEvents(new PheroCellTierChangeListener(), this);
     getLogger().info("Plugin enabled!");
   }
 

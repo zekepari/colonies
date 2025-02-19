@@ -1,25 +1,22 @@
 package io.anthills.commands.colony;
 
-import org.bukkit.entity.Player;
-
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import io.anthills.commands.colony.subcommands.CreateCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 
 public class ColonyCommand {
-    public LiteralCommandNode<CommandSourceStack> getCommandNode() {
+    public static LiteralArgumentBuilder<CommandSourceStack> createCommand() {
         return Commands.literal("colony")
-                .requires(source -> source instanceof Player)
-                .executes(this::execute)
-                .then(new CreateCommand().getCommandNode())
-                .build();
+                .executes(ColonyCommand::usage)
+                .then(CreateCommand.createCommand());
     }
 
-    private int execute(CommandContext<CommandSourceStack> context) {
+    private static int usage(CommandContext<CommandSourceStack> context) {
         context.getSource().getSender().sendMessage("Usage: /colony <subcommand>");
-        return 1;
+        return Command.SINGLE_SUCCESS;
     }
 }
