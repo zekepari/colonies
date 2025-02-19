@@ -1,27 +1,26 @@
 package io.anthills.classes;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import org.bukkit.entity.Player;
 
 public class Colony {
     private final UUID colonyID;
     private String name;
-    private UUID queen;
-    private final Set<UUID> memberUUIDs;
-    private final Set<PheroCell> pheroCells = new HashSet<>();
+    private Ant queen;
+    private final Set<Ant> members = new HashSet<>();
+    private static List<PheroCell> pheroCells = new ArrayList<>();
 
-    public Colony(UUID colonyID, String name, UUID queen) {
+    public Colony(UUID colonyID, String name, Ant queen) {
         this.colonyID = colonyID;
         this.name = name;
         this.queen = queen;
-        this.memberUUIDs = new HashSet<>();
-        this.memberUUIDs.add(queen);
+        addMember(queen);
     }
 
-    public UUID getUniqueId() {
+    public UUID getColonyId() {
         return colonyID;
     }
 
@@ -29,46 +28,24 @@ public class Colony {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public UUID getQueen() {
+    public Ant getQueen() {
         return queen;
     }
 
-    public void setQueen(UUID queen) {
-        this.queen = queen;
+    public Set<Ant> getMembers() {
+        return members;
     }
 
-    public boolean addMember(UUID member) {
-        return memberUUIDs.add(member);
+    public List<PheroCell> getPheroCells() {
+        return pheroCells;
     }
 
-    public boolean removeMember(Player player) {
-        if (player.getUniqueId().equals(queen)) {
-            return false;
-        }
-        return memberUUIDs.remove(player.getUniqueId());
+    public void addMember(Ant ant) {
+        members.add(ant);
+        ant.setColony(this);
     }
 
-    public boolean isMember(Player player) {
-        return memberUUIDs.contains(player.getUniqueId());
-    }
-
-    public Set<UUID> getMembers() {
-        return new HashSet<>(memberUUIDs);
-    }
-
-    public Set<PheroCell> getPheroCells() {
-        return new HashSet<>(pheroCells);
-    }
-
-    public boolean addPheroCell(PheroCell pheroCell) {
-        return pheroCells.add(pheroCell);
-    }
-
-    public boolean removePheroCell(PheroCell pheroCell) {
-        return pheroCells.remove(pheroCell);
+    public void addPheroCell(PheroCell cell) {
+        pheroCells.add(cell);
     }
 }
