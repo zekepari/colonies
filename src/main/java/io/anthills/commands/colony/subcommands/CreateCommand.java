@@ -2,6 +2,7 @@ package io.anthills.commands.colony.subcommands;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -12,6 +13,7 @@ import com.mojang.brigadier.context.CommandContext;
 
 import io.anthills.classes.Ant;
 import io.anthills.classes.Colony;
+import io.anthills.events.ColonyCreateEvent;
 import io.anthills.managers.GlobalCache;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -46,7 +48,10 @@ public class CreateCommand {
         }
 
         Colony colony = new Colony(UUID.randomUUID(), name, ant);
+        ant.setColony(colony);
+
         GlobalCache.registerColony(colony);
+        Bukkit.getPluginManager().callEvent(new ColonyCreateEvent(colony));
 
         player.sendMessage("Colony created: " + name);
         return Command.SINGLE_SUCCESS;

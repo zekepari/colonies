@@ -11,7 +11,7 @@ public class Colony {
     private String name;
     private Ant queen;
     private final Set<Ant> members = new HashSet<>();
-    private static List<PheroCell> pheroCells = new ArrayList<>();
+    private static List<Cell> cells = new ArrayList<>();
 
     public Colony(UUID colonyID, String name, Ant queen) {
         this.colonyID = colonyID;
@@ -36,8 +36,8 @@ public class Colony {
         return members;
     }
 
-    public List<PheroCell> getPheroCells() {
-        return pheroCells;
+    public List<Cell> getCells() {
+        return cells;
     }
 
     public void addMember(Ant ant) {
@@ -45,7 +45,7 @@ public class Colony {
         ant.setColony(this);
     }
 
-    public void addPheroCell(PheroCell cell) {
-        pheroCells.add(cell);
+    public void addCell(Cell cell) {
+        cells.add(cell);
     }
 }

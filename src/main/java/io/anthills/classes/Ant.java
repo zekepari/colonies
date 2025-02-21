@@ -2,6 +2,9 @@ package io.anthills.classes;
 
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 public class Ant {
     private final UUID playerId;
     private Colony colony;
@@ -12,6 +15,10 @@ public class Ant {
 
     public UUID getPlayerId() {
         return playerId;
+    }
+
+    public Player getPlayer() {
+        return Bukkit.getPlayer(playerId);
     }
 
     public Colony getColony() {

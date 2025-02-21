@@ -6,16 +6,16 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import io.anthills.classes.Cell;
-import io.anthills.events.CellChangeEvent;
+import io.anthills.classes.CellPosition;
+import io.anthills.events.CellMoveEvent;
 
 public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Cell currentCell = new Cell(player.getLocation());
+        CellPosition cellPosition = new CellPosition(player.getLocation());
 
-        Bukkit.getPluginManager().callEvent(new CellChangeEvent(player, null, currentCell));
+        Bukkit.getPluginManager().callEvent(new CellMoveEvent(player, null, cellPosition));
     }
 }

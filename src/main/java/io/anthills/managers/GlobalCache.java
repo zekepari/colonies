@@ -6,23 +6,19 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.anthills.classes.Ant;
-import io.anthills.classes.Cell;
+import io.anthills.classes.CellPosition;
 import io.anthills.classes.Colony;
-import io.anthills.classes.PheroCell;
+import io.anthills.classes.Cell;
 
 public class GlobalCache {
     private static final Map<UUID, Ant> ants = new HashMap<>();
     private static final Map<UUID, Colony> colonies = new HashMap<>();
-    private static final Map<Integer, PheroCell> pheroCells = new HashMap<>();
+    private static final Map<Integer, Cell> cells = new HashMap<>();
 
     /* ========= ANT METHODS ========= */
 
-    public static void registerAnt(Ant ant) {
-        ants.put(ant.getPlayerId(), ant);
-    }
-
     public static Ant getAnt(UUID playerId) {
-        return ants.computeIfAbsent(playerId, id -> new Ant(id));
+        return ants.computeIfAbsent(playerId, key -> new Ant(playerId));
     }
 
     public static Map<UUID, Ant> getAnts() {
@@ -51,21 +47,17 @@ public class GlobalCache {
         colonies.remove(colonyId);
     }
 
-    /* ========= PHEROCELL METHODS ========= */
+    /* ========= CELL METHODS ========= */
 
-    public static void registerPheroCell(PheroCell pheroCell) {
-        pheroCells.put(pheroCell.hashCode(), pheroCell);
+    public static Cell getCell(CellPosition cellPosition) {
+        return cells.computeIfAbsent(cellPosition.hashCode(), key -> new Cell(cellPosition));
     }
 
-    public static PheroCell getPheroCell(Cell cell) {
-        return pheroCells.get(cell.hashCode());
+    public static Map<Integer, Cell> getCells() {
+        return Collections.unmodifiableMap(cells);
     }
 
-    public static Map<Integer, PheroCell> getPheroCells() {
-        return Collections.unmodifiableMap(pheroCells);
-    }
-
-    public static void unregisterPheroCell(Cell cell) {
-        pheroCells.remove(cell.hashCode());
+    public static void unregisterCell(CellPosition cell) {
+        cells.remove(cell.hashCode());
     }
 }

@@ -3,53 +3,65 @@ package io.anthills.managers;
 import io.anthills.Plugin;
 import io.anthills.classes.Ant;
 import io.anthills.classes.Cell;
-import io.anthills.classes.PheroCell;
-import io.anthills.events.ColonyClaimEvent;
-import io.anthills.events.PheroCellTierChangeEvent;
-import io.anthills.utils.CellUtils;
+import io.anthills.classes.Colony;
+import io.anthills.events.CellUpdateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PheromoneManager {
-    private static final Map<Player, BukkitTask> tasks = new HashMap<>();
+    private static final Map<Integer, BukkitTask> cellTasks = new HashMap<>();
 
-    public static void processCell(Player player, Cell cell) {
-        BukkitTask existingTask = tasks.remove(player);
-        if (existingTask != null) {
-            existingTask.cancel();
-        }
+    public static void processCell(Cell cell) {
+        if (cellTasks.containsKey(cell.hashCode()))
+            return;
 
-        BukkitTask task = Bukkit.getScheduler().runTaskLater(Plugin.getInstance(), () -> {
-            if (!player.isOnline())
+        BukkitTask task = Bukkit.getScheduler().runTaskTimer(Plugin.getInstance(), () -> {
+            List<Player> cellPlayers = CellTracker.getPlayersInCell(cell);
+
+            if (cellPlayers.isEmpty()) {
+                BukkitTask t = cellTasks.remove(cell.hashCode());
+                if (t != null)
+                    t.cancel();
                 return;
-            Cell currentCell = new Cell(player.getLocation());
-            if (currentCell.equals(cell)) {
-                PheroCell pheroCell = GlobalCache.getPheroCell(cell);
-                Ant ant = GlobalCache.getAnt(player.getUniqueId());
+            }
 
-                if (pheroCell == null) {
-                    pheroCell = new PheroCell(player.getLocation(), ant.getColony());
-                    GlobalCache.registerPheroCell(pheroCell);
-                    Bukkit.getPluginManager().callEvent(new ColonyClaimEvent(pheroCell.getColony(), pheroCell));
-                } else {
-                    if (CellUtils.hasOutsiderInCell(cell, ant.getColony())) {
-                        return;
+            Set<Colony> colonies = new HashSet<>();
+            Colony capturingColony = null;
+            for (Player player : cellPlayers) {
+                Ant ant = GlobalCache.getAnt(player.getUniqueId());
+                Colony antColony = ant.getColony();
+                if (antColony != null) {
+                    colonies.add(antColony);
+                    capturingColony = antColony;
+                    if (colonies.size() > 1) {
+                        break;
                     }
-                    int oldTier = pheroCell.getTier();
-                    if (pheroCell.promoteTier()) {
-                        Bukkit.getPluginManager()
-                                .callEvent(new PheroCellTierChangeEvent(pheroCell, oldTier, pheroCell.getTier()));
-                    }
-                }
-                if (GlobalCache.getPheroCell(cell).getTier() < 3) {
-                    processCell(player, cell);
                 }
             }
-        }, 20 * 20);
-        tasks.put(player, task);
+
+            if (colonies.size() > 1)
+                return;
+
+            boolean friendlyCell = capturingColony != null && capturingColony.equals(cell.getColony());
+
+            if (friendlyCell) {
+                cell.updateScent(cellPlayers.size());
+            } else {
+                cell.updateScent(-cellPlayers.size());
+                if (cell.getTier() == 0 && cell.getScent() == 0) {
+                    cell.setColony(capturingColony);
+                }
+            }
+            Bukkit.getPluginManager().callEvent(new CellUpdateEvent(cell));
+        }, 20, 20);
+
+        cellTasks.put(cell.hashCode(), task);
     }
 }

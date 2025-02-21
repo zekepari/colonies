@@ -6,8 +6,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import io.anthills.classes.Cell;
-import io.anthills.events.CellChangeEvent;
+import io.anthills.classes.CellPosition;
+import io.anthills.events.CellMoveEvent;
 
 public class PlayerMoveListener implements Listener {
 
@@ -17,11 +17,11 @@ public class PlayerMoveListener implements Listener {
             return;
 
         Player player = event.getPlayer();
-        Cell fromCell = new Cell(event.getFrom());
-        Cell toCell = new Cell(event.getTo());
+        CellPosition fromCellPosition = new CellPosition(event.getFrom());
+        CellPosition toCellPosition = new CellPosition(event.getTo());
 
-        if (!fromCell.equals(toCell)) {
-            Bukkit.getPluginManager().callEvent(new CellChangeEvent(player, fromCell, toCell));
+        if (!fromCellPosition.equals(toCellPosition)) {
+            Bukkit.getPluginManager().callEvent(new CellMoveEvent(player, fromCellPosition, toCellPosition));
         }
     }
 }
