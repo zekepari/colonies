@@ -18,13 +18,13 @@ public class CellMoveListener implements Listener {
     public void onCellChange(CellMoveEvent event) {
         Player player = event.getPlayer();
         CellPosition cellPosition = event.getToCellPosition();
-
-        CellTracker.updatePlayerCell(player, cellPosition);
-
         Cell cell = GlobalCache.getCell(cellPosition);
 
-        SidebarManager.updateAndDisplay(player, cell);
+        CellTracker.updatePlayerCell(player, cellPosition);
+        SidebarManager.updatePlayerBoard(player, cell);
         EffectManager.processPlayer(player, cell);
-        PheromoneManager.processCell(cell);
+
+        if (cell.getCellY() <= 18)
+            PheromoneManager.processCell(cell);
     }
 }

@@ -16,7 +16,7 @@ public class CellUpdateListener implements Listener {
         Cell cell = event.getCell();
 
         CellTracker.getPlayersInCell(cell).forEach(player -> {
-            SidebarManager.updateAndDisplay(player, cell);
+            SidebarManager.updatePlayerBoard(player, cell);
             EffectManager.processPlayer(player, cell);
         });
     }

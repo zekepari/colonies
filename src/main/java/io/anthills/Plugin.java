@@ -7,6 +7,7 @@ import io.anthills.listeners.CellMoveListener;
 import io.anthills.listeners.CellUpdateListener;
 import io.anthills.listeners.PlayerJoinListener;
 import io.anthills.listeners.PlayerMoveListener;
+import io.anthills.listeners.SurfaceListener;
 
 public class Plugin extends JavaPlugin {
   private static Plugin instance;
@@ -21,6 +22,7 @@ public class Plugin extends JavaPlugin {
     getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
     getServer().getPluginManager().registerEvents(new CellMoveListener(), this);
     getServer().getPluginManager().registerEvents(new CellUpdateListener(), this);
+    getServer().getPluginManager().registerEvents(new SurfaceListener(), this);
     getLogger().info("Plugin enabled!");
   }
 

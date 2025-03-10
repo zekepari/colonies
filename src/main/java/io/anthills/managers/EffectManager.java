@@ -7,6 +7,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class EffectManager {
+
     public static void processPlayer(Player player, Cell cell) {
         Ant ant = GlobalCache.getAnt(player.getUniqueId());
 

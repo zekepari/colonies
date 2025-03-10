@@ -2,3 +2,7 @@ name: colonies
 main: io.anthills.Plugin
 version: 0.0.1
 api-version: 1.21
+permissions:
+  anthills.admin:
+    description: Allows the user to bypass all permissions
+    default: op
