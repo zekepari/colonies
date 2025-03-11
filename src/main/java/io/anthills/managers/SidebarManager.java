@@ -64,8 +64,7 @@ public class SidebarManager {
 
     public static void remove(Player player) {
         FastBoard board = playerBoards.remove(player.getUniqueId());
-        if (board != null) {
+        if (board != null)
             board.delete();
-        }
     }
 }

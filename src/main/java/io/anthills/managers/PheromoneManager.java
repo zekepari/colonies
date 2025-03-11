@@ -37,13 +37,13 @@ public class PheromoneManager {
             for (Player player : cellPlayers) {
                 Ant ant = GlobalCache.getAnt(player.getUniqueId());
                 Colony antColony = ant.getColony();
-                if (antColony != null) {
-                    colonies.add(antColony);
-                    capturingColony = antColony;
-                    if (colonies.size() > 1) {
-                        break;
-                    }
-                }
+                if (antColony == null)
+                    continue;
+
+                colonies.add(antColony);
+                capturingColony = antColony;
+                if (colonies.size() > 1)
+                    break;
             }
 
             if (colonies.size() > 1)
@@ -55,9 +55,8 @@ public class PheromoneManager {
                 cell.updateScent(cellPlayers.size());
             } else {
                 cell.updateScent(-cellPlayers.size());
-                if (cell.getTier() == 0 && cell.getScent() == 0) {
+                if (cell.getTier() == 0 && cell.getScent() == 0)
                     cell.setColony(capturingColony);
-                }
             }
             Bukkit.getPluginManager().callEvent(new CellUpdateEvent(cell));
         }, 20, 20);

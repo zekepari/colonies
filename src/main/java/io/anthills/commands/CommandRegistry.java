@@ -6,6 +6,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import io.anthills.Plugin;
 import io.anthills.commands.colony.ColonyCommand;
+import io.anthills.commands.node.NodeCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
@@ -13,12 +14,14 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 public class CommandRegistry {
     public static void registerCommands() {
         LiteralCommandNode<CommandSourceStack> colonyCommand = ColonyCommand.createCommand().build();
+        LiteralCommandNode<CommandSourceStack> nodeCommand = NodeCommand.createCommand().build();
 
         Plugin.getInstance().getLifecycleManager()
                 .registerEventHandler(LifecycleEvents.COMMANDS, events -> {
                     Commands commands = events.registrar();
 
                     commands.register(colonyCommand, List.of("c"));
+                    commands.register(nodeCommand);
                 });
     }
 }

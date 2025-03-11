@@ -10,17 +10,17 @@ public class CellPosition {
     private final boolean isSurface;
 
     public CellPosition(CellPosition cellPosition) {
-        this.cellX = cellPosition.cellX;
-        this.cellY = cellPosition.cellY;
-        this.cellZ = cellPosition.cellZ;
-        this.isSurface = cellPosition.isSurface;
+        cellX = cellPosition.cellX;
+        cellY = cellPosition.cellY;
+        cellZ = cellPosition.cellZ;
+        isSurface = cellPosition.isSurface;
     }
 
     public CellPosition(Location location) {
-        this.cellX = location.getChunk().getX();
-        this.cellY = Math.floorDiv(location.getBlockY() - location.getWorld().getMinHeight(), 16) + 1;
-        this.cellZ = location.getChunk().getZ();
-        this.isSurface = this.cellY > 18;
+        cellX = location.getChunk().getX();
+        cellY = Math.floorDiv(location.getBlockY() - location.getWorld().getMinHeight(), 16) + 1;
+        cellZ = location.getChunk().getZ();
+        isSurface = cellY > 18;
     }
 
     public int getCellX() {

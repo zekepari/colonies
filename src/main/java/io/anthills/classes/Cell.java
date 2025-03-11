@@ -36,7 +36,7 @@ public class Cell extends CellPosition {
     }
 
     public int getScent() {
-        return scent;
+        return this.scent;
     }
 
     public void updateScent(int amount) {

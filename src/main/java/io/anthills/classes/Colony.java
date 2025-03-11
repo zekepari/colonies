@@ -10,8 +10,8 @@ public class Colony {
     private final UUID colonyID;
     private String name;
     private Ant queen;
-    private final Set<Ant> members = new HashSet<>();
-    private static List<Cell> cells = new ArrayList<>();
+    private Set<Ant> members = new HashSet<>();
+    private List<Cell> cells = new ArrayList<>();
 
     public Colony(UUID colonyID, String name, Ant queen) {
         this.colonyID = colonyID;
@@ -21,31 +21,38 @@ public class Colony {
     }
 
     public UUID getColonyId() {
-        return colonyID;
+        return this.colonyID;
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public Ant getQueen() {
-        return queen;
+        return this.queen;
     }
 
     public Set<Ant> getMembers() {
-        return members;
+        return this.members;
     }
 
     public List<Cell> getCells() {
-        return cells;
+        return this.cells;
     }
 
     public void addMember(Ant ant) {
-        members.add(ant);
-        ant.setColony(this);
+        this.members.add(ant);
+    }
+
+    public void removeMember(Ant ant) {
+        this.members.remove(ant);
     }
 
     public void addCell(Cell cell) {
-        cells.add(cell);
+        this.cells.add(cell);
+    }
+
+    public void removeCell(Cell cell) {
+        this.cells.remove(cell);
     }
 }

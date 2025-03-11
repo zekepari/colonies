@@ -5,15 +5,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.bukkit.Location;
+
 import io.anthills.classes.Ant;
 import io.anthills.classes.CellPosition;
 import io.anthills.classes.Colony;
+import io.anthills.classes.Node;
 import io.anthills.classes.Cell;
 
 public class GlobalCache {
     private static final Map<UUID, Ant> ants = new HashMap<>();
     private static final Map<UUID, Colony> colonies = new HashMap<>();
     private static final Map<Integer, Cell> cells = new HashMap<>();
+    private static final Map<Integer, Node> nodes = new HashMap<>();
 
     /* ========= ANT METHODS ========= */
 
@@ -59,5 +63,23 @@ public class GlobalCache {
 
     public static void unregisterCell(CellPosition cell) {
         cells.remove(cell.hashCode());
+    }
+
+    /* ========= NODE METHODS ========= */
+
+    public static void registerNode(Node node) {
+        nodes.put(node.getLocation().hashCode(), node);
+    }
+
+    public static Node getNode(Location location) {
+        return nodes.get(location.hashCode());
+    }
+
+    public static Map<Integer, Node> getNodes() {
+        return Collections.unmodifiableMap(nodes);
+    }
+
+    public static void unregisterNode(Location location) {
+        nodes.remove(location.hashCode());
     }
 }

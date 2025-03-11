@@ -6,7 +6,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>io.anthills</groupId>
-	<artifactId>colonies</artifactId>
+	<artifactId>anthills</artifactId>
 	<version>0.0.1</version>
 
 	<properties>
@@ -46,6 +46,11 @@
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>fancyplugins-releases</id>
+            <name>FancyPlugins Repository</name>
+            <url>https://repo.fancyplugins.de/releases</url>
+        </repository>
 	</repositories>
 
 	<dependencies>
@@ -56,9 +61,15 @@
             <scope>provided</scope>
         </dependency>
 		<dependency>
-        <groupId>fr.mrmicky</groupId>
-        <artifactId>fastboard</artifactId>
-        <version>2.1.3</version>
-    </dependency>
+            <groupId>fr.mrmicky</groupId>
+            <artifactId>fastboard</artifactId>
+            <version>2.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>de.oliver</groupId>
+            <artifactId>FancyHolograms</artifactId>
+            <version>2.4.2</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 </project>

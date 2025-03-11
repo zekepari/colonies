@@ -1,5 +1,6 @@
 package io.anthills.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,12 +24,23 @@ import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 
 import io.anthills.classes.CellPosition;
+import io.anthills.classes.Node;
+import io.anthills.events.NodeBreakEvent;
+import io.anthills.managers.GlobalCache;
 
 public class SurfaceListener implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
+        Block block = event.getBlock();
+        Node node = GlobalCache.getNode(event.getBlock().getLocation());
+
+        if (node != null) {
+            Bukkit.getPluginManager().callEvent(new NodeBreakEvent(node, player, block));
+            return;
+        }
+
         if (player.hasPermission("anthills.admin"))
             return;
         CellPosition cellPosition = new CellPosition(event.getBlock().getLocation());
@@ -47,7 +59,9 @@ public class SurfaceListener implements Listener {
     @EventHandler
     public void onBlockDamage(BlockDamageEvent event) {
         Player player = event.getPlayer();
-        if (player.hasPermission("anthills.admin"))
+        Node node = GlobalCache.getNode(event.getBlock().getLocation());
+
+        if (node != null || player.hasPermission("anthills.admin"))
             return;
         CellPosition cellPosition = new CellPosition(event.getBlock().getLocation());
         event.setCancelled(cellPosition.isSurface());
