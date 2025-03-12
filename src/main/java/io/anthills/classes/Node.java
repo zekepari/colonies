@@ -65,7 +65,8 @@ public class Node {
         if (nodeHologram == null) {
             nodeHologram = new NodeHologram(this);
         }
-        nodeHologram.update();
+        nodeHologram.updateTextHologram(0, 0);
+        nodeHologram.updateItemDisplay(nodeOption);
 
         Bukkit.getPluginManager().callEvent(new NodeBlockSpawnEvent(this));
     }
@@ -104,7 +105,7 @@ public class Node {
 
                 currentIndex = (currentIndex + 1) % nodeOptionsSize;
                 NodeOption nodeOption = nodeData.getBlockOptions().get(currentIndex);
-                nodeHologram.update(nodeOption);
+                nodeHologram.updateItemDisplay(nodeOption);
 
                 remainingCooldown--;
             }

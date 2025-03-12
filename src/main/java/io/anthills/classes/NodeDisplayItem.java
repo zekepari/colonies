@@ -20,7 +20,8 @@ public class NodeDisplayItem {
 
     private final float baseScale = 0.4f;
     private final float amplitude = 0.1f;
-    private final float rotation = (float) Math.toRadians(90);
+    private final float rotationIncrement = (float) (2 * Math.PI / 6);
+    private float currentRotation = 0f;
     private boolean reverse = false;
 
     public NodeDisplayItem(Location location, Material material) {
@@ -30,6 +31,10 @@ public class NodeDisplayItem {
             entity.setPersistent(false);
         });
 
+        startAnimation();
+    }
+
+    private void startAnimation() {
         Bukkit.getScheduler().runTaskTimerAsynchronously(Plugin.getInstance(), task -> {
             if (!itemDisplay.isValid()) {
                 task.cancel();
@@ -37,8 +42,9 @@ public class NodeDisplayItem {
             }
 
             reverse = !reverse;
+            currentRotation = (currentRotation + rotationIncrement) % ((float) (2 * Math.PI));
             float scaleFactor = reverse ? baseScale : (baseScale + amplitude);
-            Matrix4f matrix = new Matrix4f().scale(scaleFactor).rotateY(rotation + 0.1F);
+            Matrix4f matrix = new Matrix4f().scale(scaleFactor).rotateY(currentRotation);
 
             itemDisplay.setTransformationMatrix(matrix);
             itemDisplay.setInterpolationDelay(interpolationDelay);
