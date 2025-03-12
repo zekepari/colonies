@@ -101,8 +101,11 @@ public class Node {
                     float pitch = basePitch + ((5 - remainingCooldown) / 4.0f) * (maxPitch - basePitch);
                     getLocation().getWorld().playSound(getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, pitch);
                 }
-                nodeHologram.update();
+
                 currentIndex = (currentIndex + 1) % nodeOptionsSize;
+                NodeOption nodeOption = nodeData.getBlockOptions().get(currentIndex);
+                nodeHologram.update(nodeOption);
+
                 remainingCooldown--;
             }
         }.runTaskTimer(Plugin.getInstance(), 0L, 20L);

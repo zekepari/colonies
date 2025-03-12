@@ -3,16 +3,14 @@ package io.anthills.classes;
 import java.util.List;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Display.Billboard;
-import org.bukkit.inventory.ItemStack;
 
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import de.oliver.fancyholograms.api.HologramManager;
-import de.oliver.fancyholograms.api.data.ItemHologramData;
 import de.oliver.fancyholograms.api.data.TextHologramData;
 import de.oliver.fancyholograms.api.hologram.Hologram;
 import io.anthills.config.NodeConfig;
-import io.anthills.enums.HologramAnimationType;
 import io.anthills.utils.FormatUtils;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -22,41 +20,42 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 public class NodeHologram {
     private final Node node;
     private Hologram textHologram;
-    private Hologram itemHologram;
-    private HologramAnimation animation;
+    private final String textHoloName;
+    private NodeDisplayItem displayItem;
 
     private static final HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
 
     public NodeHologram(Node node) {
         this.node = node;
+        this.textHoloName = "node_text_" + node.getBlockVector().toString();
 
-        initializeHolograms();
+        initializeTextHologram();
+        initializeItemDisplay();
     }
 
-    private void initializeHolograms() {
+    private void initializeTextHologram() {
         Location textLocation = node.getLocation().clone().add(0.5, 1.8, 0.5);
-        String textName = "node_text_" + node.getBlockVector().toString();
-        TextHologramData textData = new TextHologramData(textName, textLocation);
+        TextHologramData textData = new TextHologramData(textHoloName, textLocation);
         textData.setBillboard(Billboard.CENTER);
         textData.setPersistent(false);
         textHologram = hologramManager.create(textData);
         hologramManager.addHologram(textHologram);
+    }
 
-        Location itemLocation = node.getLocation().clone().add(0.5, 1.4, 0.5);
-        String itemName = "node_item_" + node.getBlockVector().toString();
-        ItemHologramData itemData = new ItemHologramData(itemName, itemLocation);
-        itemData.setBillboard(Billboard.VERTICAL);
-        itemData.setPersistent(false);
-        itemHologram = hologramManager.create(itemData);
-        hologramManager.addHologram(itemHologram);
+    private void initializeItemDisplay() {
+        Material material = (node.getNodeOption() != null) ? node.getNodeOption().getMaterial() : Material.AIR;
+        Location location = node.getLocation().clone().add(0.5, 1.4, 0.5);
+        displayItem = new NodeDisplayItem(location, material);
+    }
 
-        animation = new HologramAnimation(itemHologram, HologramAnimationType.PULSE, 1000L, 0.45f, 0.05f);
-        animation.start();
+    public void update(NodeOption nodeOption) {
+        updateTextHologram();
+        updateItemDisplay(nodeOption);
     }
 
     public void update() {
         updateTextHologram();
-        updateItemHologram();
+        updateItemDisplay(node.getNodeOption());
     }
 
     private void updateTextHologram() {
@@ -84,11 +83,10 @@ public class NodeHologram {
         refresh(textHologram);
     }
 
-    private void updateItemHologram() {
-        NodeOption option = node.getNodeOption();
-        ItemHologramData itemData = (ItemHologramData) itemHologram.getData();
-        itemData.setItemStack(new ItemStack(option.getMaterial()));
-        refresh(itemHologram);
+    public void updateItemDisplay(NodeOption nodeOption) {
+        if (node.getNodeOption() != null) {
+            displayItem.update(nodeOption.getMaterial());
+        }
     }
 
     private void refresh(Hologram hologram) {
@@ -97,14 +95,11 @@ public class NodeHologram {
     }
 
     public void delete() {
-        if (itemHologram != null) {
-            hologramManager.removeHologram(itemHologram);
-        }
         if (textHologram != null) {
             hologramManager.removeHologram(textHologram);
         }
-        if (animation != null) {
-            animation.delete();
+        if (displayItem != null) {
+            displayItem.delete();
         }
     }
 }
