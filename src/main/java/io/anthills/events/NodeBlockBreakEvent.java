@@ -7,14 +7,14 @@ import org.bukkit.event.HandlerList;
 
 import io.anthills.classes.Node;
 
-public class NodeBreakEvent extends Event {
+public class NodeBlockBreakEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
 
     private final Node node;
     private final Player breaker;
     private final Block block;
 
-    public NodeBreakEvent(Node node, Player breaker, Block block) {
+    public NodeBlockBreakEvent(Node node, Player breaker, Block block) {
         this.node = node;
         this.breaker = breaker;
         this.block = block;

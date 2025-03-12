@@ -2,11 +2,11 @@ package io.anthills.classes;
 
 import org.bukkit.Material;
 
-public class NodeBlockOption {
+public class NodeOption {
     private final Material material;
     private final double weight;
 
-    public NodeBlockOption(Material material, double weight) {
+    public NodeOption(Material material, double weight) {
         this.material = material;
         this.weight = weight;
     }

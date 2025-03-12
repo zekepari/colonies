@@ -25,8 +25,8 @@ import org.bukkit.event.world.StructureGrowEvent;
 
 import io.anthills.classes.CellPosition;
 import io.anthills.classes.Node;
-import io.anthills.events.NodeBreakEvent;
-import io.anthills.managers.GlobalCache;
+import io.anthills.events.NodeBlockBreakEvent;
+import io.anthills.managers.data.GlobalCache;
 
 public class SurfaceListener implements Listener {
 
@@ -34,10 +34,10 @@ public class SurfaceListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
-        Node node = GlobalCache.getNode(event.getBlock().getLocation());
+        Node node = GlobalCache.getNode(block.getLocation());
 
         if (node != null) {
-            Bukkit.getPluginManager().callEvent(new NodeBreakEvent(node, player, block));
+            Bukkit.getPluginManager().callEvent(new NodeBlockBreakEvent(node, player, block));
             return;
         }
 

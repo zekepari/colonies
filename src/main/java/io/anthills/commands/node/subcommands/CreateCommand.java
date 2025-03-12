@@ -9,8 +9,8 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
 import io.anthills.classes.Node;
-import io.anthills.classes.NodeType;
-import io.anthills.managers.GlobalCache;
+import io.anthills.enums.NodeType;
+import io.anthills.managers.data.GlobalCache;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 
@@ -55,12 +55,12 @@ public class CreateCommand {
         }
 
         Node node = new Node(location, nodeType);
-        node.spawnBlock();
-
         GlobalCache.registerNode(node);
 
-        Location tpLocation = player.getLocation().add(0, 1, 0);
-        player.teleportAsync(tpLocation);
+        if (!node.getLocation().getBlock().isPassable()) {
+            Location tpLocation = player.getLocation().add(0, 1, 0);
+            player.teleportAsync(tpLocation);
+        }
 
         player.sendMessage("Created node of type " + nodeType.name() + " at your location.");
         return Command.SINGLE_SUCCESS;

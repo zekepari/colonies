@@ -1,154 +1,110 @@
 package io.anthills.classes;
 
-import java.util.List;
-import java.util.Random;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Display.Billboard;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.joml.Vector3f;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.BlockVector;
 
-import de.oliver.fancyholograms.api.FancyHologramsPlugin;
-import de.oliver.fancyholograms.api.HologramManager;
-import de.oliver.fancyholograms.api.data.ItemHologramData;
-import de.oliver.fancyholograms.api.data.TextHologramData;
-import de.oliver.fancyholograms.api.hologram.Hologram;
 import io.anthills.Plugin;
 import io.anthills.config.NodeConfig;
-import io.anthills.events.NodeRegenerateEvent;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import io.anthills.enums.NodeType;
+import io.anthills.events.NodeBlockSpawnEvent;
+import io.anthills.utils.LocationUtils;
+import io.anthills.utils.NodeUtils;
 
 public class Node {
-    private final Location location;
-    private final NodeType type;
-    private Block nodeBlock;
-    private Material currentMaterial;
+    private final World world;
+    private final BlockVector blockVector;
+    private final NodeType nodeType;
+    private NodeOption nodeOption;
+    private NodeHologram nodeHologram;
+    private int remainingCooldown;
 
-    public Node(Location location, NodeType type) {
-        this.location = location.getBlock().getLocation();
-        this.type = type;
+    private BukkitTask cooldownTask;
+
+    public Node(Location location, NodeType nodeType) {
+        this.blockVector = LocationUtils.toBlockVector(location);
+        this.world = location.getWorld();
+        this.nodeType = nodeType;
+        spawn();
     }
 
-    public NodeType getType() {
-        return type;
+    public BlockVector getBlockVector() {
+        return blockVector;
     }
 
     public Location getLocation() {
-        return location;
+        return new Location(world, blockVector.getBlockX(), blockVector.getBlockY(),
+                blockVector.getBlockZ());
     }
 
-    public NodeData getNodeData() {
-        return NodeConfig.getNodeData(type);
+    public NodeType getNodeType() {
+        return nodeType;
     }
 
-    public void spawnBlock() {
-        currentMaterial = getWeightedMaterial();
-
-        updateItemHologram(currentMaterial);
-        updateTextHologram(getNodeData().getNodeName());
-
-        nodeBlock = location.getBlock();
-        nodeBlock.setType(currentMaterial);
+    public NodeOption getNodeOption() {
+        return nodeOption;
     }
 
-    private Material getWeightedMaterial() {
-        double totalWeight = getNodeData().getBlockOptions().stream().mapToDouble(NodeBlockOption::getWeight).sum();
-        double randomValue = new Random().nextDouble() * totalWeight;
-        double cumulative = 0;
-        for (NodeBlockOption option : getNodeData().getBlockOptions()) {
-            cumulative += option.getWeight();
-            if (randomValue <= cumulative)
-                return option.getMaterial();
+    public int getRemainingCooldown() {
+        return remainingCooldown;
+    }
+
+    public void setNodeOption(NodeOption nodeOption) {
+        this.nodeOption = nodeOption;
+    }
+
+    public void spawn() {
+        NodeOption nodeOption = NodeUtils.getWeightedOption(nodeType);
+        this.nodeOption = nodeOption;
+        getLocation().getBlock().setType(nodeOption.getMaterial());
+
+        if (nodeHologram == null) {
+            nodeHologram = new NodeHologram(this);
         }
-        return Material.STONE;
+        nodeHologram.update();
+
+        Bukkit.getPluginManager().callEvent(new NodeBlockSpawnEvent(this));
     }
 
-    public void remove() {
-        if (nodeBlock != null)
-            nodeBlock.setType(Material.AIR);
+    public void delete() {
+        if (cooldownTask != null) {
+            cooldownTask.cancel();
+            cooldownTask = null;
+        }
+        this.nodeOption = null;
+        getLocation().getBlock().setType(org.bukkit.Material.AIR);
+        nodeHologram.delete();
     }
 
     public void startCooldown() {
-        int totalCooldown = getNodeData().getRegenTimeSeconds();
-        Component nodeName = getNodeData().getNodeName();
+        NodeConfig.NodeData nodeData = NodeConfig.getNodeData(nodeType);
+        int nodeOptionsSize = nodeData.getBlockOptions().size();
+        remainingCooldown = nodeData.getRegenTimeSeconds();
+        final int startIndex = NodeUtils.getStartIndex(nodeOption, nodeType);
 
-        new BukkitRunnable() {
-            int remaining = totalCooldown;
+        cooldownTask = new BukkitRunnable() {
+            int currentIndex = startIndex;
 
             @Override
             public void run() {
-                if (remaining < 1) {
-                    spawnBlock();
-                    Bukkit.getPluginManager().callEvent(new NodeRegenerateEvent(Node.this, nodeBlock));
+                if (remainingCooldown < 1) {
+                    spawn();
                     cancel();
                     return;
+                } else if (remainingCooldown <= 3) {
+                    float basePitch = 1.0f;
+                    float maxPitch = 2f;
+                    float pitch = basePitch + ((5 - remainingCooldown) / 4.0f) * (maxPitch - basePitch);
+                    getLocation().getWorld().playSound(getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, pitch);
                 }
-
-                double ratio = (double) remaining / totalCooldown;
-                int gb = (int) (255 * ratio);
-                TextColor dynamicColor = TextColor.fromHexString(String.format("#%02X%02X%02X", 255, gb, gb));
-
-                Component text = nodeName
-                        .appendNewline()
-                        .append(Component.text(remaining + "s Remaining", dynamicColor));
-
-                updateTextHologram(text);
-                remaining--;
+                nodeHologram.update();
+                currentIndex = (currentIndex + 1) % nodeOptionsSize;
+                remainingCooldown--;
             }
         }.runTaskTimer(Plugin.getInstance(), 0L, 20L);
-    }
-
-    private void updateItemHologram(Material material) {
-        HologramManager manager = FancyHologramsPlugin.get().getHologramManager();
-        String name = getItemHoloName();
-        Hologram hologram = manager.getHologram(name).orElse(null);
-
-        if (hologram == null) {
-            ItemHologramData itemData = new ItemHologramData(name, location.clone().add(0.5, 1.4, 0.5));
-            itemData.setItemStack(new ItemStack(material));
-            itemData.setScale(new Vector3f(0.4f, 0.4f, 0.4f));
-            itemData.setBillboard(Billboard.VERTICAL);
-            itemData.setPersistent(false);
-            hologram = manager.create(itemData);
-            manager.addHologram(hologram);
-        } else {
-            ItemHologramData itemData = (ItemHologramData) hologram.getData();
-            itemData.setItemStack(new ItemStack(material));
-        }
-    }
-
-    private void updateTextHologram(Component text) {
-        String serialized = MiniMessage.miniMessage().serialize(text);
-        List<String> lines = List.of(serialized.split("\n"));
-
-        HologramManager manager = FancyHologramsPlugin.get().getHologramManager();
-        String name = getTextHoloName();
-        Hologram hologram = manager.getHologram(name).orElse(null);
-
-        if (hologram == null) {
-            TextHologramData textData = new TextHologramData(name, location.clone().add(0.5, 1.8, 0.5));
-            textData.setBillboard(Billboard.CENTER);
-            textData.setText(lines);
-            textData.setPersistent(false);
-            hologram = manager.create(textData);
-            manager.addHologram(hologram);
-        } else {
-            TextHologramData textData = (TextHologramData) hologram.getData();
-            textData.setText(lines);
-        }
-    }
-
-    private String getItemHoloName() {
-        return "node_item_" + location.hashCode();
-    }
-
-    private String getTextHoloName() {
-        return "node_text_" + location.hashCode();
     }
 }

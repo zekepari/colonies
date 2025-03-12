@@ -14,7 +14,7 @@ import com.mojang.brigadier.context.CommandContext;
 import io.anthills.classes.Ant;
 import io.anthills.classes.Colony;
 import io.anthills.events.ColonyCreateEvent;
-import io.anthills.managers.GlobalCache;
+import io.anthills.managers.data.GlobalCache;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 
@@ -47,9 +47,9 @@ public class CreateCommand {
             return Command.SINGLE_SUCCESS;
         }
 
-        Colony colony = new Colony(UUID.randomUUID(), name, ant);
+        Colony colony = new Colony(UUID.randomUUID(), name);
+        colony.setQueen(ant);
         ant.setColony(colony);
-
         GlobalCache.registerColony(colony);
         Bukkit.getPluginManager().callEvent(new ColonyCreateEvent(colony));
 

@@ -1,8 +1,6 @@
 package io.anthills.classes;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,13 +9,11 @@ public class Colony {
     private String name;
     private Ant queen;
     private Set<Ant> members = new HashSet<>();
-    private List<Cell> cells = new ArrayList<>();
+    private Set<Cell> cells = new HashSet<>();
 
-    public Colony(UUID colonyID, String name, Ant queen) {
+    public Colony(UUID colonyID, String name) {
         this.colonyID = colonyID;
         this.name = name;
-        this.queen = queen;
-        addMember(queen);
     }
 
     public UUID getColonyId() {
@@ -36,8 +32,17 @@ public class Colony {
         return this.members;
     }
 
-    public List<Cell> getCells() {
+    public Set<Cell> getCells() {
         return this.cells;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setQueen(Ant queen) {
+        this.members.add(queen);
+        this.queen = queen;
     }
 
     public void addMember(Ant ant) {

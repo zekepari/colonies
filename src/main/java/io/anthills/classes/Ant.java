@@ -27,5 +27,6 @@ public class Ant {
 
     public void setColony(Colony colony) {
         this.colony = colony;
+        colony.addMember(this);
     }
 }

@@ -1,4 +1,4 @@
-package io.anthills.managers;
+package io.anthills.managers.data;
 
 import io.anthills.classes.CellPosition;
 

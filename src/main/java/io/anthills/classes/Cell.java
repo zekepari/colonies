@@ -1,10 +1,10 @@
 package io.anthills.classes;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 
 public class Cell extends CellPosition {
     private Colony colony;
-    private int tier = 0;
     private int scent = 0;
 
     public Cell(CellPosition cellPosition) {
@@ -13,6 +13,10 @@ public class Cell extends CellPosition {
 
     public Cell(Location location) {
         super(location);
+    }
+
+    public Cell(int cellX, int cellY, int cellZ, World world) {
+        super(cellX, cellY, cellZ, world);
     }
 
     public Colony getColony() {
@@ -24,36 +28,14 @@ public class Cell extends CellPosition {
     }
 
     public int getTier() {
-        return tier;
-    }
-
-    public void setTier(int tier) {
-        if (tier >= 0 && tier <= 3) {
-            this.tier = tier;
-        } else {
-            throw new IllegalArgumentException("Invalid tier");
-        }
+        return scent / 100;
     }
 
     public int getScent() {
-        return this.scent;
+        return scent % 100;
     }
 
     public void updateScent(int amount) {
-        int total = tier * 100 + scent + amount;
-
-        total = Math.max(0, Math.min(total, 400));
-
-        if (total == 400) {
-            tier = 3;
-            scent = 100;
-        } else {
-            tier = total / 100;
-            scent = total % 100;
-        }
-    }
-
-    public boolean isMaxed() {
-        return tier == 3 && scent == 100;
+        scent = Math.max(0, Math.min(scent + amount, 400));
     }
 }

@@ -5,6 +5,9 @@ import io.anthills.classes.Ant;
 import io.anthills.classes.Cell;
 import io.anthills.classes.Colony;
 import io.anthills.events.CellUpdateEvent;
+import io.anthills.managers.data.CellTracker;
+import io.anthills.managers.data.GlobalCache;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;

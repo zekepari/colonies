@@ -1,19 +1,16 @@
 package io.anthills.events;
 
-import org.bukkit.block.Block;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import io.anthills.classes.Node;
 
-public class NodeRegenerateEvent extends Event {
+public class NodeBlockSpawnEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
 
     private final Node node;
-    private final Block block;
 
-    public NodeRegenerateEvent(Node node, Block block) {
+    public NodeBlockSpawnEvent(Node node) {
         this.node = node;
-        this.block = block;
     }
 
     @Override
@@ -27,9 +24,5 @@ public class NodeRegenerateEvent extends Event {
 
     public Node getNode() {
         return node;
-    }
-
-    public Block getBlock() {
-        return block;
     }
 }

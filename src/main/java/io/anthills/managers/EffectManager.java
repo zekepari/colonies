@@ -2,6 +2,8 @@ package io.anthills.managers;
 
 import io.anthills.classes.Ant;
 import io.anthills.classes.Cell;
+import io.anthills.managers.data.GlobalCache;
+
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;

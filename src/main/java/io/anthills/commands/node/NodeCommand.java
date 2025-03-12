@@ -5,6 +5,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 
 import io.anthills.commands.node.subcommands.CreateCommand;
+import io.anthills.commands.node.subcommands.DeleteCommand;
 import io.anthills.commands.node.subcommands.ListCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -15,6 +16,7 @@ public class NodeCommand {
                 .requires(sender -> sender.getSender().hasPermission("anthills.admin"))
                 .executes(NodeCommand::usage)
                 .then(CreateCommand.createCommand())
+                .then(DeleteCommand.createCommand())
                 .then(ListCommand.createCommand());
     }
 

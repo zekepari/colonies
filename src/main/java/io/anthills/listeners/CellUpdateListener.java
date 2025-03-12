@@ -2,9 +2,9 @@ package io.anthills.listeners;
 
 import io.anthills.classes.Cell;
 import io.anthills.events.CellUpdateEvent;
-import io.anthills.managers.CellTracker;
 import io.anthills.managers.EffectManager;
 import io.anthills.managers.SidebarManager;
+import io.anthills.managers.data.CellTracker;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
