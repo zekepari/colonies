@@ -45,7 +45,7 @@ public class NodeUtils {
         List<NodeOption> nodeOptions = NodeConfig.getNodeData(nodeType).getBlockOptions();
         for (int i = 0; i < nodeOptions.size(); i++) {
             if (nodeOptions.get(i).equals(nodeOption)) {
-                return (i + 1) % nodeOptions.size();
+                return i;
             }
         }
         return 0;

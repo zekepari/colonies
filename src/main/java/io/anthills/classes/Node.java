@@ -1,7 +1,10 @@
 package io.anthills.classes;
 
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -10,6 +13,7 @@ import org.bukkit.util.BlockVector;
 
 import io.anthills.Plugin;
 import io.anthills.config.NodeConfig;
+import io.anthills.config.NodeConfig.NodeData;
 import io.anthills.enums.NodeType;
 import io.anthills.events.NodeBlockSpawnEvent;
 import io.anthills.utils.LocationUtils;
@@ -20,7 +24,8 @@ public class Node {
     private final BlockVector blockVector;
     private final NodeType nodeType;
     private NodeOption nodeOption;
-    private NodeHologram nodeHologram;
+    private NodeDisplayItem displayItem;
+    private NodeDisplayText displayText;
     private int remainingCooldown;
 
     private BukkitTask cooldownTask;
@@ -58,15 +63,20 @@ public class Node {
     }
 
     public void spawn() {
-        NodeOption nodeOption = NodeUtils.getWeightedOption(nodeType);
-        this.nodeOption = nodeOption;
+        this.nodeOption = NodeUtils.getWeightedOption(nodeType);
         getLocation().getBlock().setType(nodeOption.getMaterial());
 
-        if (nodeHologram == null) {
-            nodeHologram = new NodeHologram(this);
+        if (displayItem == null) {
+            Location itemLocation = getLocation().clone().add(0.5, 1.4, 0.5);
+            displayItem = new NodeDisplayItem(itemLocation, nodeOption.getMaterial());
         }
-        nodeHologram.updateTextHologram(0, 0);
-        nodeHologram.updateItemDisplay(nodeOption);
+        if (displayText == null) {
+            Location textLocation = getLocation().clone().add(0.5, 1.8, 0.5);
+            displayText = new NodeDisplayText(textLocation, NodeConfig.getNodeData(nodeType));
+        }
+
+        displayItem.update(nodeOption.getMaterial());
+        displayText.update(0);
 
         Bukkit.getPluginManager().callEvent(new NodeBlockSpawnEvent(this));
     }
@@ -77,18 +87,19 @@ public class Node {
             cooldownTask = null;
         }
         this.nodeOption = null;
-        getLocation().getBlock().setType(org.bukkit.Material.AIR);
-        nodeHologram.delete();
+        getLocation().getBlock().setType(Material.AIR);
+        
+        displayItem.delete();
+        displayText.delete();
     }
 
     public void startCooldown() {
-        NodeConfig.NodeData nodeData = NodeConfig.getNodeData(nodeType);
-        int nodeOptionsSize = nodeData.getBlockOptions().size();
+        NodeData nodeData = NodeConfig.getNodeData(nodeType);
+        List<NodeOption> nodeOptions = nodeData.getBlockOptions();
         remainingCooldown = nodeData.getRegenTimeSeconds();
-        final int startIndex = NodeUtils.getStartIndex(nodeOption, nodeType);
 
         cooldownTask = new BukkitRunnable() {
-            int currentIndex = startIndex;
+            int currentIndex = NodeUtils.getStartIndex(nodeOption, nodeType);
 
             @Override
             public void run() {
@@ -103,9 +114,10 @@ public class Node {
                     getLocation().getWorld().playSound(getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, pitch);
                 }
 
-                currentIndex = (currentIndex + 1) % nodeOptionsSize;
-                NodeOption nodeOption = nodeData.getBlockOptions().get(currentIndex);
-                nodeHologram.updateItemDisplay(nodeOption);
+                currentIndex = (currentIndex + 1) % nodeOptions.size();
+                NodeOption nextNodeOption = nodeOptions.get(currentIndex);
+                displayItem.update(nextNodeOption.getMaterial());
+                displayText.update(remainingCooldown);
 
                 remainingCooldown--;
             }
